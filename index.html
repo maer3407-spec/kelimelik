@@ -498,7 +498,7 @@ renderWord = function() {
     if (!statusBox) {
         statusBox = document.createElement('div');
         statusBox.id = 'srs-status';
-        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -15px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
+        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -16px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
         document.getElementById('tags-box').after(statusBox);
     }
 
@@ -510,59 +510,6 @@ renderWord = function() {
         statusBox.innerText = "YENİ KELİME ✨";
     }
 };
-    // --- MODÜLER OTOMATİK GEÇİŞ SİSTEMİ (SANİYE AYARLI) ---
-
-// 1. Ayarlar Modalı İçine Switch Ekleme
-const settingsContentSaniye = document.querySelector('#settings-modal .modal-content');
-const autoNextHTMLSaniye = `
-<div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
-    <span style="font-weight:600">Doğru Cevapta Oto-Geçiş</span>
-    <label class="switch">
-        <input type="checkbox" id="auto-next-toggle" onchange="toggleAutoNext(this.checked)">
-        <span class="slider"></span>
-    </label>
-</div>
-`;
-settingsContentSaniye.querySelector('button').insertAdjacentHTML('beforebegin', autoNextHTMLSaniye);
-
-// 2. Ayarlar ve Bekleme Süresi (Saniye Cinsinden)
-let autoNextEnabled = localStorage.getItem('ox_auto_next') === 'true';
-const gecisSuresi = 1.5; // <--- BURADAN SANİYE CİNSİNDEN AYARLAYABİLİRSİN (Örn: 1.5 saniye)
-
-document.getElementById('auto-next-toggle').checked = autoNextEnabled;
-
-function toggleAutoNext(isEnabled) {
-    autoNextEnabled = isEnabled;
-    localStorage.setItem('ox_auto_next', isEnabled);
-}
-
-// finalizeRound Hook kısmını bununla güncelleyebilirsin (Daha profesyonel görünür)
-finalizeRound = function(isCorrect) {
-    originalFinalizeAutoSaniye(isCorrect);
-    
-    if (autoNextEnabled && isCorrect) {
-        let kalan = gecisSuresi;
-        const btn = document.getElementById('action-btn');
-        
-        // Geri sayım görseli (Opsiyonel)
-        const timer = setInterval(() => {
-            kalan -= 0.5;
-            if(kalan > 0 && btn.innerText === "SIRADAKİ") {
-                btn.innerText = `SIRADAKİ (${kalan}s)`;
-            } else {
-                clearInterval(timer);
-            }
-        }, 500);
-
-        setTimeout(() => {
-            if (btn && btn.innerText.includes("SIRADAKİ")) {
-                getNextWord();
-            }
-        }, gecisSuresi * 1000); 
-    }
-};
-
-console.log(`⚡ Otomatik Geçiş Aktif: Bekleme süresi ${gecisSuresi} saniye.`);
 </script>
 </body>
 </html>
