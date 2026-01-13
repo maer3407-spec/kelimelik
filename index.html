@@ -336,9 +336,6 @@
     function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
     document.getElementById('user-input').addEventListener("keypress", (e) => { if(e.key === "Enter") document.getElementById('action-btn').click(); });
     window.onload = initUserSystem;
-    // --- MODÜLER AYARLAR VE SES SİSTEMİ ---
-
-// 1. Ayarlar Modalı İçin HTML Enjeksiyonu (HTML'e dokunmadan ekler)
 const settingsHTML = `
 <div id="settings-modal" class="modal">
     <div class="modal-content">
@@ -364,19 +361,13 @@ input:checked + .slider { background-color: var(--success); }
 input:checked + .slider:before { transform: translateX(24px); }
 </style>
 `;
-
-// Sayfa yüklendiğinde modalı gövdeye ekle ve butonu oluştur
 document.body.insertAdjacentHTML('beforeend', settingsHTML);
-
-// Menü barına Ayarlar butonunu ekle
 const menuBar = document.querySelector('.menu-bar');
 const settingsBtn = document.createElement('div');
 settingsBtn.className = 'menu-item';
 settingsBtn.innerHTML = '⚙️ AYARLAR';
 settingsBtn.onclick = () => toggleModal('settings-modal', true);
 menuBar.appendChild(settingsBtn);
-
-// 2. Ses Ayarlarını Yönetme
 let autoSpeakEnabled = localStorage.getItem('ox_auto_speak') === 'true';
 document.getElementById('auto-speak-toggle').checked = autoSpeakEnabled;
 
@@ -384,19 +375,13 @@ function toggleAutoSpeak(isEnabled) {
     autoSpeakEnabled = isEnabled;
     localStorage.setItem('ox_auto_speak', isEnabled);
 }
-
-// 3. Mevcut Fonksiyonlara Kanca (Hook) Atma
-// renderWord fonksiyonu her çalıştığında sesi tetiklemek için:
 const originalRenderWord = renderWord;
 renderWord = function() {
     originalRenderWord(); // Eski renderWord fonksiyonunu çalıştır
     if (autoSpeakEnabled && currentItem) {
-        // Küçük bir gecikme ekleyelim ki kelime görsel olarak yüklensin
         setTimeout(() => speakWord(), 300);
     }
 };
-
-// 4. Ses Hızını ve Kalitesini İyileştirme (Opsiyonel Güncelleme)
 window.speakWord = function() {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentItem.eng);
@@ -405,9 +390,6 @@ window.speakWord = function() {
     utterance.pitch = 1; 
     window.speechSynthesis.speak(utterance);
 };
-    // --- MODÜLER DARK MODE SİSTEMİ ---
-
-// 1. Ayarlar Modalı İçine Dark Mode Switch'i Ekle
 const settingsContainer = document.querySelector('#settings-modal .modal-content');
 const darkModeHTML = `
 <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
@@ -418,10 +400,7 @@ const darkModeHTML = `
     </label>
 </div>
 `;
-// "Kaydet ve Kapat" butonunun hemen üstüne yerleştir
 settingsContainer.querySelector('button').insertAdjacentHTML('beforebegin', darkModeHTML);
-
-// 2. Dark Mode Renk Değişkenleri (CSS)
 const darkStyles = `
 <style id="dark-mode-styles">
     body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
@@ -439,8 +418,6 @@ const darkStyles = `
 </style>
 `;
 document.head.insertAdjacentHTML('beforeend', darkStyles);
-
-// 3. Dark Mode Mantığı ve Hafıza
 let darkModeEnabled = localStorage.getItem('ox_dark_mode') === 'true';
 document.getElementById('dark-mode-toggle').checked = darkModeEnabled;
 
@@ -457,19 +434,12 @@ function toggleDarkMode(isEnabled) {
     localStorage.setItem('ox_dark_mode', isEnabled);
     applyDarkMode(isEnabled);
 }
-
-// Sayfa ilk açıldığında hafızadaki ayarı uygula
 applyDarkMode(darkModeEnabled);
-    // --- MODÜLER SRS (SM-2 BENZERİ) ALGORİTMASI ---
-
-// 1. SRS Mantığını getNextWord üzerine yazma
 const originalGetNextWord = getNextWord;
 getNextWord = function() {
     if (!filteredDict.length) return originalGetNextWord();
 
     const now = Date.now();
-    
-    // Vakti gelmiş (due) kelimeleri bul
     let dueWords = filteredDict.filter(item => {
         const data = srsData[item.eng];
         if (!data) return true; // Hiç görülmemiş kelime
@@ -478,8 +448,6 @@ getNextWord = function() {
         // Bir sonraki görülme zamanı gelmiş mi? (Default: 0)
         return !data.nextReview || now >= data.nextReview;
     });
-
-    // Eğer vakti gelmiş kelime yoksa, filtrelenmiş listeden rastgele seç
     if (dueWords.length === 0) {
         dueWords = filteredDict;
     }
@@ -495,8 +463,6 @@ getNextWord = function() {
     secondChanceActive = false;
     renderWord();
 };
-
-// 2. Cevap Sonrası Zamanlama Hesaplama (Hook)
 const originalFinalizeRound = finalizeRound;
 finalizeRound = function(isCorrect) {
     if (!srsData[currentItem.eng]) {
@@ -522,9 +488,7 @@ finalizeRound = function(isCorrect) {
 };
 
 console.log("🚀 SRS Algoritması Aktif: Kelimeler artık öğrenme hızınıza göre gelecek.");
-    // --- MODÜLER SRS DURUM GÖSTERGESİ ---
 
-// renderWord fonksiyonuna SRS bilgisini eklemek için hook
 const statusRenderWord = renderWord;
 renderWord = function() {
     statusRenderWord(); // Orijinal render fonksiyonunu çağır
