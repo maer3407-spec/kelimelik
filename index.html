@@ -460,6 +460,68 @@ function toggleDarkMode(isEnabled) {
 
 // Sayfa ilk açıldığında hafızadaki ayarı uygula
 applyDarkMode(darkModeEnabled);
+    // --- MODÜLER SRS (SM-2 BENZERİ) ALGORİTMASI ---
+
+// 1. SRS Mantığını getNextWord üzerine yazma
+const originalGetNextWord = getNextWord;
+getNextWord = function() {
+    if (!filteredDict.length) return originalGetNextWord();
+
+    const now = Date.now();
+    
+    // Vakti gelmiş (due) kelimeleri bul
+    let dueWords = filteredDict.filter(item => {
+        const data = srsData[item.eng];
+        if (!data) return true; // Hiç görülmemiş kelime
+        if (data.isMistake) return true; // Hatalı kelime
+        
+        // Bir sonraki görülme zamanı gelmiş mi? (Default: 0)
+        return !data.nextReview || now >= data.nextReview;
+    });
+
+    // Eğer vakti gelmiş kelime yoksa, filtrelenmiş listeden rastgele seç
+    if (dueWords.length === 0) {
+        dueWords = filteredDict;
+    }
+
+    // %20 ihtimalle hatalı kelimelere öncelik ver
+    const mistakes = dueWords.filter(i => srsData[i.eng]?.isMistake);
+    if (mistakes.length > 0 && Math.random() < 0.2) {
+        currentItem = mistakes[Math.floor(Math.random() * mistakes.length)];
+    } else {
+        currentItem = dueWords[Math.floor(Math.random() * dueWords.length)];
+    }
+
+    secondChanceActive = false;
+    renderWord();
+};
+
+// 2. Cevap Sonrası Zamanlama Hesaplama (Hook)
+const originalFinalizeRound = finalizeRound;
+finalizeRound = function(isCorrect) {
+    if (!srsData[currentItem.eng]) {
+        srsData[currentItem.eng] = { level: 0, isMistake: false, nextReview: 0 };
+    }
+
+    const data = srsData[currentItem.eng];
+    const now = Date.now();
+
+    if (isCorrect) {
+        data.level++;
+        // Seviyeye göre bekleme süresi (Dakika bazlı örnek: 2^level * 10 dk)
+        // Profesyonel SRS: Seviye 1: 10dk, Seviye 2: 1 saat, Seviye 3: 5 saat, Seviye 4: 1 gün...
+        const intervals = [0, 10, 60, 300, 1440, 4320, 10080]; // Dakika cinsinden
+        const waitMinutes = intervals[Math.min(data.level, intervals.length - 1)];
+        data.nextReview = now + (waitMinutes * 60000);
+    } else {
+        data.level = 0; // Yanlışta başa dön
+        data.nextReview = now; // Hemen tekrar sorulabilir
+    }
+
+    originalFinalizeRound(isCorrect);
+};
+
+console.log("🚀 SRS Algoritması Aktif: Kelimeler artık öğrenme hızınıza göre gelecek.");
 </script>
 </body>
 </html>
