@@ -572,16 +572,26 @@ function toggleAutoNext(isEnabled) {
     localStorage.setItem('ox_auto_next', isEnabled);
 }
 
-// 3. FinalizeRound Hook
-const originalFinalizeAutoSaniye = finalizeRound;
+// finalizeRound Hook kısmını bununla güncelleyebilirsin (Daha profesyonel görünür)
 finalizeRound = function(isCorrect) {
     originalFinalizeAutoSaniye(isCorrect);
     
-    // Saniye değerini milisaniyeye çevirip uygula
     if (autoNextEnabled && isCorrect) {
+        let kalan = gecisSuresi;
+        const btn = document.getElementById('action-btn');
+        
+        // Geri sayım görseli (Opsiyonel)
+        const timer = setInterval(() => {
+            kalan -= 0.5;
+            if(kalan > 0 && btn.innerText === "SIRADAKİ") {
+                btn.innerText = `SIRADAKİ (${kalan}s)`;
+            } else {
+                clearInterval(timer);
+            }
+        }, 500);
+
         setTimeout(() => {
-            const btn = document.getElementById('action-btn');
-            if (btn && btn.innerText === "SIRADAKİ") {
+            if (btn && btn.innerText.includes("SIRADAKİ")) {
                 getNextWord();
             }
         }, gecisSuresi * 1000); 
