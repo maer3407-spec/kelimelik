@@ -299,12 +299,30 @@
             }, { merge: true });
         }
 
-        updateUI();
-        document.getElementById('user-input').disabled = true;
-        document.getElementById('action-btn').innerText = "SIRADAKİ";
-        document.getElementById('action-btn').style.background = isCorrect ? "var(--success)" : "var(--error)";
-        document.getElementById('action-btn').onclick = getNextWord;
-    }
+     updateUI();
+    
+    const actionBtn = document.getElementById('action-btn');
+    const userInput = document.getElementById('user-input');
+
+    userInput.disabled = true;
+    actionBtn.innerText = "SIRADAKİ";
+    actionBtn.style.background = isCorrect ? "var(--success)" : "var(--error)";
+    actionBtn.onclick = getNextWord;
+
+    // --- OTOMATİK GEÇİŞ MANTIĞI ---
+    // Eğer doğruysa 1 saniye bekle, yanlışsa cevabı görmesi için 3 saniye bekle
+    const delay = isCorrect ? 1000 : 3000;
+
+    // Mevcut bir otomatik geçişi iptal etmek için (üst üste binmemesi için)
+    if (window.autoNextTimeout) clearTimeout(window.autoNextTimeout);
+
+    window.autoNextTimeout = setTimeout(() => {
+        // Eğer kullanıcı zaten manuel olarak 'Sıradaki'ne basmadıysa geç
+        if (userInput.disabled) { 
+            getNextWord();
+        }
+    }, delay);
+}
 
     function updateUI() {
         const mCount = Object.values(srsData).filter(v => v.isMistake).length;
