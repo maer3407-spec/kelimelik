@@ -405,6 +405,61 @@ window.speakWord = function() {
     utterance.pitch = 1; 
     window.speechSynthesis.speak(utterance);
 };
+    // --- MODÜLER DARK MODE SİSTEMİ ---
+
+// 1. Ayarlar Modalı İçine Dark Mode Switch'i Ekle
+const settingsContainer = document.querySelector('#settings-modal .modal-content');
+const darkModeHTML = `
+<div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
+    <span style="font-weight:600">Karanlık Mod (Dark Mode)</span>
+    <label class="switch">
+        <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode(this.checked)">
+        <span class="slider"></span>
+    </label>
+</div>
+`;
+// "Kaydet ve Kapat" butonunun hemen üstüne yerleştir
+settingsContainer.querySelector('button').insertAdjacentHTML('beforebegin', darkModeHTML);
+
+// 2. Dark Mode Renk Değişkenleri (CSS)
+const darkStyles = `
+<style id="dark-mode-styles">
+    body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
+    body.dark-mode .container { background: var(--card); border-color: #334155; }
+    body.dark-mode input { background: #334155; border-color: #475569; color: white; }
+    body.dark-mode select { background: #334155; color: #cbd5e1; }
+    body.dark-mode .menu-bar { background: #334155; border-color: #475569; }
+    body.dark-mode .active-user { background: #1e293b; color: var(--primary-light); }
+    body.dark-mode #target-word { color: white; }
+    body.dark-mode #user-overlay { background: rgba(15, 23, 42, 0.95); }
+    body.dark-mode .user-card, body.dark-mode .modal-content { background: #1e293b; color: white; border-color: #334155; }
+    body.dark-mode .progress-row { background: #334155; border-color: #475569; }
+    body.dark-mode .tag-lvl { background: #312e81; color: #c7d2fe; }
+    body.dark-mode #settings-modal div[style*="background:#f8fafc"] { background: #334155 !important; }
+</style>
+`;
+document.head.insertAdjacentHTML('beforeend', darkStyles);
+
+// 3. Dark Mode Mantığı ve Hafıza
+let darkModeEnabled = localStorage.getItem('ox_dark_mode') === 'true';
+document.getElementById('dark-mode-toggle').checked = darkModeEnabled;
+
+function applyDarkMode(isDark) {
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+
+function toggleDarkMode(isEnabled) {
+    darkModeEnabled = isEnabled;
+    localStorage.setItem('ox_dark_mode', isEnabled);
+    applyDarkMode(isEnabled);
+}
+
+// Sayfa ilk açıldığında hafızadaki ayarı uygula
+applyDarkMode(darkModeEnabled);
 </script>
 </body>
 </html>
