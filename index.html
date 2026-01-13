@@ -336,6 +336,75 @@
     function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
     document.getElementById('user-input').addEventListener("keypress", (e) => { if(e.key === "Enter") document.getElementById('action-btn').click(); });
     window.onload = initUserSystem;
+    // --- MODÜLER AYARLAR VE SES SİSTEMİ ---
+
+// 1. Ayarlar Modalı İçin HTML Enjeksiyonu (HTML'e dokunmadan ekler)
+const settingsHTML = `
+<div id="settings-modal" class="modal">
+    <div class="modal-content">
+        <h2 style="font-weight:800; margin-bottom:20px">Ayarlar</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
+            <span style="font-weight:600">Otomatik Ses (İngilizce)</span>
+            <label class="switch">
+                <input type="checkbox" id="auto-speak-toggle" onchange="toggleAutoSpeak(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <button onclick="toggleModal('settings-modal', false)" style="width:100%; padding:15px; border-radius:16px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer">KAYDET VE KAPAT</button>
+    </div>
+</div>
+
+<style>
+/* Toggle Switch Tasarımı */
+.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--success); }
+input:checked + .slider:before { transform: translateX(24px); }
+</style>
+`;
+
+// Sayfa yüklendiğinde modalı gövdeye ekle ve butonu oluştur
+document.body.insertAdjacentHTML('beforeend', settingsHTML);
+
+// Menü barına Ayarlar butonunu ekle
+const menuBar = document.querySelector('.menu-bar');
+const settingsBtn = document.createElement('div');
+settingsBtn.className = 'menu-item';
+settingsBtn.innerHTML = '⚙️ AYARLAR';
+settingsBtn.onclick = () => toggleModal('settings-modal', true);
+menuBar.appendChild(settingsBtn);
+
+// 2. Ses Ayarlarını Yönetme
+let autoSpeakEnabled = localStorage.getItem('ox_auto_speak') === 'true';
+document.getElementById('auto-speak-toggle').checked = autoSpeakEnabled;
+
+function toggleAutoSpeak(isEnabled) {
+    autoSpeakEnabled = isEnabled;
+    localStorage.setItem('ox_auto_speak', isEnabled);
+}
+
+// 3. Mevcut Fonksiyonlara Kanca (Hook) Atma
+// renderWord fonksiyonu her çalıştığında sesi tetiklemek için:
+const originalRenderWord = renderWord;
+renderWord = function() {
+    originalRenderWord(); // Eski renderWord fonksiyonunu çalıştır
+    if (autoSpeakEnabled && currentItem) {
+        // Küçük bir gecikme ekleyelim ki kelime görsel olarak yüklensin
+        setTimeout(() => speakWord(), 300);
+    }
+};
+
+// 4. Ses Hızını ve Kalitesini İyileştirme (Opsiyonel Güncelleme)
+window.speakWord = function() {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentItem.eng);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9; // Daha doğal bir hız
+    utterance.pitch = 1; 
+    window.speechSynthesis.speak(utterance);
+};
 </script>
 </body>
 </html>
