@@ -522,6 +522,30 @@ finalizeRound = function(isCorrect) {
 };
 
 console.log("🚀 SRS Algoritması Aktif: Kelimeler artık öğrenme hızınıza göre gelecek.");
+    // --- MODÜLER SRS DURUM GÖSTERGESİ ---
+
+// renderWord fonksiyonuna SRS bilgisini eklemek için hook
+const statusRenderWord = renderWord;
+renderWord = function() {
+    statusRenderWord(); // Orijinal render fonksiyonunu çağır
+    
+    // Bilgi kutusunu oluştur veya güncelle
+    let statusBox = document.getElementById('srs-status');
+    if (!statusBox) {
+        statusBox = document.createElement('div');
+        statusBox.id = 'srs-status';
+        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -15px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
+        document.getElementById('tags-box').after(statusBox);
+    }
+
+    const data = srsData[currentItem.eng];
+    if (data && data.level > 0) {
+        const levelStars = "⭐".repeat(Math.min(data.level, 5));
+        statusBox.innerText = `Öğrenme Seviyesi: ${levelStars}`;
+    } else {
+        statusBox.innerText = "YENİ KELİME ✨";
+    }
+};
 </script>
 </body>
 </html>
