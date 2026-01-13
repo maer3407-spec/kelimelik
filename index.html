@@ -546,6 +546,49 @@ renderWord = function() {
         statusBox.innerText = "YENİ KELİME ✨";
     }
 };
+    // --- MODÜLER OTOMATİK GEÇİŞ SİSTEMİ (SANİYE AYARLI) ---
+
+// 1. Ayarlar Modalı İçine Switch Ekleme
+const settingsContentSaniye = document.querySelector('#settings-modal .modal-content');
+const autoNextHTMLSaniye = `
+<div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
+    <span style="font-weight:600">Doğru Cevapta Oto-Geçiş</span>
+    <label class="switch">
+        <input type="checkbox" id="auto-next-toggle" onchange="toggleAutoNext(this.checked)">
+        <span class="slider"></span>
+    </label>
+</div>
+`;
+settingsContentSaniye.querySelector('button').insertAdjacentHTML('beforebegin', autoNextHTMLSaniye);
+
+// 2. Ayarlar ve Bekleme Süresi (Saniye Cinsinden)
+let autoNextEnabled = localStorage.getItem('ox_auto_next') === 'true';
+const gecisSuresi = 1.5; // <--- BURADAN SANİYE CİNSİNDEN AYARLAYABİLİRSİN (Örn: 1.5 saniye)
+
+document.getElementById('auto-next-toggle').checked = autoNextEnabled;
+
+function toggleAutoNext(isEnabled) {
+    autoNextEnabled = isEnabled;
+    localStorage.setItem('ox_auto_next', isEnabled);
+}
+
+// 3. FinalizeRound Hook
+const originalFinalizeAutoSaniye = finalizeRound;
+finalizeRound = function(isCorrect) {
+    originalFinalizeAutoSaniye(isCorrect);
+    
+    // Saniye değerini milisaniyeye çevirip uygula
+    if (autoNextEnabled && isCorrect) {
+        setTimeout(() => {
+            const btn = document.getElementById('action-btn');
+            if (btn && btn.innerText === "SIRADAKİ") {
+                getNextWord();
+            }
+        }, gecisSuresi * 1000); 
+    }
+};
+
+console.log(`⚡ Otomatik Geçiş Aktif: Bekleme süresi ${gecisSuresi} saniye.`);
 </script>
 </body>
 </html>
