@@ -528,20 +528,18 @@ renderWord = function() {
         statusBox.innerText = "YENİ KELİME ✨";
     }
 };
-    // --- MOBİL KLAVYE VE GÖRÜNÜM OPTİMİZASYONU ---
+   // --- MOBİL KLAVYE VE GÖRÜNÜM OPTİMİZASYONU (GİZLEME KAPALI) ---
 
 const inputGroup = document.querySelector('.input-group');
 const userInput = document.getElementById('user-input');
 const targetWordDiv = document.getElementById('target-word');
 
-// 1. Akıllı Odaklanma: Kullanıcı bir kez dokunmadan klavyeyi otomatik açma
+// 1. Akıllı Odaklanma: Kullanıcı etkileşimi sonrası klavye yönetimi
 let hasInteracted = false;
 document.addEventListener('touchstart', () => { hasInteracted = true; }, { once: true });
 
-// Mevcut renderWord fonksiyonunu mobil uyumlu hale getirmek için sarmalıyoruz
 const wrapFocus = () => {
     if (hasInteracted) {
-        // iOS ve Android'de input'a odaklanırken sayfanın zıplamasını önlemek için hafif gecikme
         setTimeout(() => { userInput.focus(); }, 100);
     }
 };
@@ -555,17 +553,15 @@ if (window.visualViewport) {
         if (offset > 150) { // Klavye açıldı
             document.body.classList.add('keyboard-active');
             
-            // Buton grubunu klavyenin tam üzerine taşı
-            // Safe area (çentik/alt bar) payını hesaba katarak konumlandırıyoruz
+            // Buton grubunu klavyenin üzerine taşı (Elemanları gizlemeden)
             inputGroup.style.position = 'fixed';
-            inputGroup.style.bottom = `${offset + 10}px`;
+            inputGroup.style.bottom = `${offset + 5}px`;
             inputGroup.style.left = '24px';
             inputGroup.style.right = '24px';
             inputGroup.style.zIndex = '1000';
             
-            // Kelimeyi yukarı kaydır ki klavye altında kalmasın
-            targetWordDiv.style.fontSize = '2.2rem';
-            targetWordDiv.style.marginTop = '0';
+            // Alan açmak için sadece ana kelimeyi biraz küçült
+            targetWordDiv.style.fontSize = '2.4rem';
         } else { // Klavye kapandı
             document.body.classList.remove('keyboard-active');
             
@@ -574,10 +570,8 @@ if (window.visualViewport) {
             inputGroup.style.bottom = '0';
             inputGroup.style.left = '0';
             inputGroup.style.right = '0';
-            inputGroup.style.transform = 'translateY(0)';
             
             targetWordDiv.style.fontSize = '3.2rem';
-            targetWordDiv.style.marginTop = '20px';
         }
     });
 }
@@ -589,21 +583,14 @@ renderWord = function() {
     wrapFocus();
 };
 
-// CSS sınıflarını dinamik ekle
+// CSS Düzenlemeleri (Gizleme kuralları kaldırıldı)
 const mobileStyle = document.createElement('style');
 mobileStyle.innerHTML = `
-    .keyboard-active .menu-bar, 
-    .keyboard-active .filter-panel,
-    .keyboard-active .tags-container,
-    .keyboard-active #srs-status { 
-        display: none !important; 
-    }
     .keyboard-active .container {
-        justify-content: flex-start !important;
-        padding-top: 10px !important;
+        padding-bottom: 120px !important; /* Butonun altında kalan alan için boşluk */
     }
     #user-input:focus {
-        font-size: 16px !important; /* iOS'un zoom yapmasını engellemek için */
+        font-size: 16px !important; /* iOS zoom koruması */
     }
 `;
 document.head.appendChild(mobileStyle);
