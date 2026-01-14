@@ -1,400 +1,373 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Oxford 3000 Pro - Modern Edition</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Oxford 3000 Pro - Modern Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <style>
-        :root { --primary: #4f46e5; --primary-light: #818cf8; --success: #10b981; --expert: #059669; --warning: #f59e0b; --error: #ef4444; --bg: #f1f5f9; --text: #0f172a; --card: #ffffff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: var(--text); overflow-x: hidden; }
-        
-        /* Glassmorphism Container */
-        .container { background: var(--card); width: 100%; max-width: 480px; min-height: 100vh; padding: 24px; position: relative; display: flex; flex-direction: column; transition: all 0.3s ease; }
-        @media (min-width: 500px) { .container { min-height: auto; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); margin: 20px; } }
+    <style>
+        :root { --primary: #4f46e5; --primary-light: #818cf8; --success: #10b981; --expert: #059669; --warning: #f59e0b; --error: #ef4444; --bg: #f1f5f9; --text: #0f172a; --card: #ffffff; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: var(--text); overflow-x: hidden; }
+        
+        /* Glassmorphism Container */
+        .container { background: var(--card); width: 100%; max-width: 480px; min-height: 100vh; padding: 24px; position: relative; display: flex; flex-direction: column; transition: all 0.3s ease; }
+        @media (min-width: 500px) { .container { min-height: auto; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); margin: 20px; } }
 
-        /* User Overlay - Full Screen Blur */
-        #user-overlay { position: fixed; inset: 0; background: rgba(241, 245, 249, 0.95); backdrop-filter: blur(12px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
-        .user-card { background: white; width: 100%; max-width: 320px; padding: 18px; margin: 10px 0; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .user-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .del-user { color: var(--error); font-weight: 800; padding: 8px; font-size: 0.8rem; background: #fee2e2; border-radius: 10px; }
+        /* User Overlay - Full Screen Blur */
+        #user-overlay { position: fixed; inset: 0; background: rgba(241, 245, 249, 0.95); backdrop-filter: blur(12px); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .user-card { background: white; width: 100%; max-width: 320px; padding: 18px; margin: 10px 0; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .user-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .del-user { color: var(--error); font-weight: 800; padding: 8px; font-size: 0.8rem; background: #fee2e2; border-radius: 10px; }
 
-        /* Google Login Button Style */
-        .google-btn { background: white; color: var(--text); border: 1px solid #e2e8f0; padding: 15px; border-radius: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 320px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s; }
-        .google-btn:hover { background: #f8fafc; transform: translateY(-1px); }
+        /* Google Login Button Style */
+        .google-btn { background: white; color: var(--text); border: 1px solid #e2e8f0; padding: 15px; border-radius: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 320px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s; }
+        .google-btn:hover { background: #f8fafc; transform: translateY(-1px); }
 
-       /* Modern Menu Bar */
+       /* Modern Menu Bar */
 
-        .menu-bar { display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; background: #f8fafc; border-radius: 20px; padding: 8px; border: 1px solid #f1f5f9; flex-wrap: nowrap; }
-        .menu-item { font-size: 0.6rem; font-weight: 800; cursor: pointer; color: #64748b; padding: 10px 14px; border-radius: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
-        .active-user { color: var(--primary); background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        
-        /* Filter Panel Responsive */
-        .filter-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-        select { appearance: none; background: #f1f5f9; border: 2px solid transparent; padding: 12px; border-radius: 16px; font-weight: 600; font-size: 0.85rem; color: #475569; outline: none; cursor: pointer; transition: border 0.2s; }
-        select:focus { border-color: var(--primary-light); background: white; }
+        .menu-bar { display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; background: #f8fafc; border-radius: 20px; padding: 8px; border: 1px solid #f1f5f9; flex-wrap: nowrap; }
+        .menu-item { font-size: 0.6rem; font-weight: 800; cursor: pointer; color: #64748b; padding: 10px 14px; border-radius: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+        .active-user { color: var(--primary); background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
+        /* Filter Panel Responsive */
+        .filter-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+        select { appearance: none; background: #f1f5f9; border: 2px solid transparent; padding: 12px; border-radius: 16px; font-weight: 600; font-size: 0.85rem; color: #475569; outline: none; cursor: pointer; transition: border 0.2s; }
+        select:focus { border-color: var(--primary-light); background: white; }
 
-        /* Word Presentation Area */
-        #target-word { font-size: 3.2rem; font-weight: 800; margin: 0px 0 10px 0; color: #1e293b; letter-spacing: -1.5px; line-height: 1.1; min-height: 80px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .tags-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
-        .tag { padding: 6px 14px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .tag-lvl { background: #e0e7ff; color: #4338ca; }
-        .tag-info { background: #fef3c7; color: #92400e; }
+        /* Word Presentation Area */
+        #target-word { font-size: 3.2rem; font-weight: 800; margin: 0px 0 10px 0; color: #1e293b; letter-spacing: -1.5px; line-height: 1.1; min-height: 80px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .tags-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .tag { padding: 6px 14px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag-lvl { background: #e0e7ff; color: #4338ca; }
+        .tag-info { background: #fef3c7; color: #92400e; }
 
-        /* Input & Interaction */
-        .input-group { position: relative; margin-top: auto; }
-        input { width: 100%; padding: 20px; border: 2px solid #e2e8f0; border-radius: 20px; font-size: 1.1rem; font-weight: 600; outline: none; text-align: center; transition: all 0.3s; background: #f8fafc; }
-        input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-        
-        #action-btn { width: 100%; padding: 20px; border: none; border-radius: 20px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 16px; transition: all 0.3s; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
-        #action-btn:active { transform: scale(0.98); }
-        
-        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--warning) !important; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        /* Input & Interaction */
+        .input-group { position: relative; margin-top: auto; }
+        input { width: 100%; padding: 20px; border: 2px solid #e2e8f0; border-radius: 20px; font-size: 1.1rem; font-weight: 600; outline: none; text-align: center; transition: all 0.3s; background: #f8fafc; }
+        input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+        
+        #action-btn { width: 100%; padding: 20px; border: none; border-radius: 20px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 16px; transition: all 0.3s; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
+        #action-btn:active { transform: scale(0.98); }
+        
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--warning) !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
-        /* Modals Modern */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 28px; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; max-height: 80vh; overflow-y: auto; }
-        
-        /* Stats Visuals */
-        .progress-row { margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 18px; border: 1px solid #f1f5f9; }
-        .progress-bar { background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--primary)); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .expert-fill { height: 100%; background: linear-gradient(90deg, var(--success), var(--expert)); transition: width 0.8s; }
-        
-        #feedback { font-weight: 700; margin-bottom: 10px; font-size: 1rem; transition: all 0.2s; }
-    </style>
+        /* Modals Modern */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 28px; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; max-height: 80vh; overflow-y: auto; }
+        
+        /* Stats Visuals */
+        .progress-row { margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 18px; border: 1px solid #f1f5f9; }
+        .progress-bar { background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--primary)); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .expert-fill { height: 100%; background: linear-gradient(90deg, var(--success), var(--expert)); transition: width 0.8s; }
+        
+        #feedback { font-weight: 700; margin-bottom: 10px; font-size: 1rem; transition: all 0.2s; }
+    </style>
 </head>
 <body>
 
 <div id="user-overlay">
-    <div style="text-align:center; margin-bottom:30px">
-        <h1 style="font-weight:800; font-size:2rem; margin:0; letter-spacing:-1px">Oxford 3000<span style="color:var(--primary)">.</span></h1>
-        <p style="color:#64748b; font-weight:600">Öğrenme yolculuğuna başla</p>
-    </div>
+    <div style="text-align:center; margin-bottom:30px">
+        <h1 style="font-weight:800; font-size:2rem; margin:0; letter-spacing:-1px">Oxford 3000<span style="color:var(--primary)">.</span></h1>
+        <p style="color:#64748b; font-weight:600">Öğrenme yolculuğuna başla</p>
+    </div>
 
-    <button class="google-btn" onclick="loginWithGoogle()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
-        Google ile Giriş Yap
-    </button>
-    <div style="color:#cbd5e1; font-size:0.8rem; margin-bottom:15px;">— VEYA YEREL DEVAM ET —</div>
+    <button class="google-btn" onclick="loginWithGoogle()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+        Google ile Giriş Yap
+    </button>
+    <div style="color:#cbd5e1; font-size:0.8rem; margin-bottom:15px;">— VEYA YEREL DEVAM ET —</div>
 
-    <div id="user-list" style="width:100%; display:flex; flex-direction:column; align-items:center; max-height:30vh; overflow-y:auto; padding:10px"></div>
-    <div style="width:100%; max-width:320px; margin-top:20px; padding-top:20px; border-top:2px solid #e2e8f0">
-        <input type="text" id="new-username" placeholder="Yeni Öğrenci İsmi" style="font-size:0.95rem; padding:15px; background:white">
-        <button onclick="createUser()" style="width:100%; margin-top:12px; padding:15px; border-radius:18px; background:var(--text); color:white; border:none; font-weight:700; cursor:pointer">PROFİL OLUŞTUR</button>
-    </div>
+    <div id="user-list" style="width:100%; display:flex; flex-direction:column; align-items:center; max-height:30vh; overflow-y:auto; padding:10px"></div>
+    <div style="width:100%; max-width:320px; margin-top:20px; padding-top:20px; border-top:2px solid #e2e8f0">
+        <input type="text" id="new-username" placeholder="Yeni Öğrenci İsmi" style="font-size:0.95rem; padding:15px; background:white">
+        <button onclick="createUser()" style="width:100%; margin-top:12px; padding:15px; border-radius:18px; background:var(--text); color:white; border:none; font-weight:700; cursor:pointer">PROFİL OLUŞTUR</button>
+    </div>
 </div>
 
 <div class="container">
-    <div class="menu-bar">
-        <div id="active-user-name" class="menu-item active-user" onclick="location.reload()">👤 Profil</div>
-        <div class="menu-item" onclick="toggleModal('mistake-modal', true)">⚠️ HATALAR <span id="wrong-count" style="margin-left:4px">0</span></div>
-        <div class="menu-item" onclick="openStats()">📊 KELİMETİSTİK</div>
-    </div>
+    <div class="menu-bar">
+        <div id="active-user-name" class="menu-item active-user" onclick="location.reload()">👤 Profil</div>
+        <div class="menu-item" onclick="toggleModal('mistake-modal', true)">⚠️ HATALAR <span id="wrong-count" style="margin-left:4px">0</span></div>
+        <div class="menu-item" onclick="openStats()">📊 KELİMETİSTİK</div>
+    </div>
 
-    <div class="filter-panel">
-        <select id="level-filter" onchange="applyFilters()"><option value="ALL">Seviye: Tümü</option><option value="A1">Seviye A1</option><option value="A2">Seviye A2</option><option value="B1">Seviye B1</option><option value="B2">Seviye B2</option><option value="C1">Seviye C1</option></select>
-        <select id="type-filter" onchange="applyFilters()"><option value="ALL">Tür: Tümü</option><option value="v.">Fiiller (v.)</option><option value="n.">İsimler (n.)</option><option value="adj.">Sıfatlar (adj.)</option><option value="adv.">Zarflar (adv.)</option></select>
-    </div>
+    <div class="filter-panel">
+        <select id="level-filter" onchange="applyFilters()"><option value="ALL">Seviye: Tümü</option><option value="A1">Seviye A1</option><option value="A2">Seviye A2</option><option value="B1">Seviye B1</option><option value="B2">Seviye B2</option><option value="C1">Seviye C1</option></select>
+        <select id="type-filter" onchange="applyFilters()"><option value="ALL">Tür: Tümü</option><option value="v.">Fiiller (v.)</option><option value="n.">İsimler (n.)</option><option value="adj.">Sıfatlar (adj.)</option><option value="adv.">Zarflar (adv.)</option></select>
+    </div>
 
-    <div class="tags-container" id="tags-box"></div>
-    <div onclick="speakWord()" style="cursor:pointer; margin-bottom:20px">
-        <div id="target-word">...</div>
-        <div style="font-size: 0.75rem; color: var(--primary); font-weight: 800; letter-spacing: 1px; text-align:center">🔊 TELAFFUZU DİNLE</div>
-    </div>
+    <div class="tags-container" id="tags-box"></div>
+    <div onclick="speakWord()" style="cursor:pointer; margin-bottom:20px">
+        <div id="target-word">...</div>
+        <div style="font-size: 0.75rem; color: var(--primary); font-weight: 800; letter-spacing: 1px; text-align:center">🔊 TELAFFUZU DİNLE</div>
+    </div>
 
-    <div class="input-group">
-        <div id="feedback"></div>
-        <input type="text" id="user-input" placeholder="Türkçe karşılığını yaz..." autocomplete="off">
-        <button id="action-btn">KONTROL ET</button>
-    </div>
+    <div class="input-group">
+        <div id="feedback"></div>
+        <input type="text" id="user-input" placeholder="Türkçe karşılığını yaz..." autocomplete="off">
+        <button id="action-btn">KONTROL ET</button>
+    </div>
 </div>
 
 <div id="stats-modal" class="modal">
-    <div class="modal-content">
-        <h2 style="font-weight:800; margin-bottom:20px">Gelişim Analizi</h2>
-        <div style="position:relative; margin-bottom:20px">
-            <canvas id="statsChart" style="max-height:160px;"></canvas>
-        </div>
-        <div id="level-bars"></div>
-        <button onclick="toggleModal('stats-modal', false)" style="width:100%; margin-top:10px; padding:15px; border-radius:16px; border:none; background:#f1f5f9; color:var(--text); font-weight:700; cursor:pointer">KAPAT</button>
-    </div>
+    <div class="modal-content">
+        <h2 style="font-weight:800; margin-bottom:20px">Gelişim Analizi</h2>
+        <div style="position:relative; margin-bottom:20px">
+            <canvas id="statsChart" style="max-height:160px;"></canvas>
+        </div>
+        <div id="level-bars"></div>
+        <button onclick="toggleModal('stats-modal', false)" style="width:100%; margin-top:10px; padding:15px; border-radius:16px; border:none; background:#f1f5f9; color:var(--text); font-weight:700; cursor:pointer">KAPAT</button>
+    </div>
 </div>
 
 <div id="mistake-modal" class="modal">
-    <div class="modal-content">
-        <h2 style="font-weight:800; margin-bottom:20px">Hatalı Kelimeler</h2>
-        <div id="mistake-list-container" style="max-height:50vh; overflow-y:auto"></div>
-        <button onclick="toggleModal('mistake-modal', false)" style="width:100%; margin-top:20px; padding:15px; border-radius:16px; border:none; background:#f1f5f9; color:var(--text); font-weight:700">KAPAT</button>
-    </div>
+    <div class="modal-content">
+        <h2 style="font-weight:800; margin-bottom:20px">Hatalı Kelimeler</h2>
+        <div id="mistake-list-container" style="max-height:50vh; overflow-y:auto"></div>
+        <button onclick="toggleModal('mistake-modal', false)" style="width:100%; margin-top:20px; padding:15px; border-radius:16px; border:none; background:#f1f5f9; color:var(--text); font-weight:700">KAPAT</button>
+    </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIG ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyCM5M27q4r-gxhkQoc1XEyGU7JCI1Nzk5M",
-        authDomain: "kelimelik-43169.firebaseapp.com",
-        projectId: "kelimelik-43169",
-        storageBucket: "kelimelik-43169.firebasestorage.app",
-        messagingSenderId: "1065593596358",
-        appId: "1:1065593596358:web:d34ad0df91fd9efd252ac7"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM5M27q4r-gxhkQoc1XEyGU7JCI1Nzk5M",
+        authDomain: "kelimelik-43169.firebaseapp.com",
+        projectId: "kelimelik-43169",
+        storageBucket: "kelimelik-43169.firebasestorage.app",
+        messagingSenderId: "1065593596358",
+        appId: "1:1065593596358:web:d34ad0df91fd9efd252ac7"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    // --- APP LOGIC ---
-    let masterDict = [];
-    let users = JSON.parse(localStorage.getItem('ox_users')) || [];
-    let currentUser = null;
-    let srsData = {};
-    let filteredDict = [];
-    let currentItem = null, myChart = null, secondChanceActive = false;
-    const levels = ['A1', 'A2', 'B1', 'B2', 'C1'], types = ['v.', 'n.', 'adj.', 'adv.'];
+    // --- APP LOGIC ---
+    let masterDict = [];
+    let users = JSON.parse(localStorage.getItem('ox_users')) || [];
+    let currentUser = null;
+    let srsData = {};
+    let filteredDict = [];
+    let currentItem = null, myChart = null, secondChanceActive = false;
+    const levels = ['A1', 'A2', 'B1', 'B2', 'C1'], types = ['v.', 'n.', 'adj.', 'adv.'];
 
-    function initUserSystem() {
-        const list = document.getElementById('user-list');
-        list.innerHTML = "";
-        users.forEach(u => {
-            const div = document.createElement('div');
-            div.className = 'user-card';
-            div.innerHTML = `<span onclick="selectUser('${u}')" style="flex:1; font-weight:700;">${u}</span><span class="del-user" onclick="deleteUser('${u}')">SİL</span>`;
-            list.appendChild(div);
-        });
-    }
+    function initUserSystem() {
+        const list = document.getElementById('user-list');
+        list.innerHTML = "";
+        users.forEach(u => {
+            const div = document.createElement('div');
+            div.className = 'user-card';
+            div.innerHTML = `<span onclick="selectUser('${u}')" style="flex:1; font-weight:700;">${u}</span><span class="del-user" onclick="deleteUser('${u}')">SİL</span>`;
+            list.appendChild(div);
+        });
+    }
 
-    async function loginWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        try {
-            const result = await auth.signInWithPopup(provider);
-            const user = result.user;
-            currentUser = user.displayName;
-            
-            // Buluttan veriyi getir
-            const doc = await db.collection("users").doc(user.uid).get();
-            srsData = doc.exists ? (doc.data().srsData || {}) : {};
-            
-            // Arayüzü güncelle
-            document.getElementById('user-overlay').style.display = 'none';
-            document.getElementById('active-user-name').innerText = "👤 " + currentUser;
-            loadCSV();
-        } catch (error) {
-            console.error(error);
-            alert("Google ile giriş başarısız.");
-        }
-    }
+    async function loginWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+            currentUser = user.displayName;
+            
+            // Buluttan veriyi getir
+            const doc = await db.collection("users").doc(user.uid).get();
+            srsData = doc.exists ? (doc.data().srsData || {}) : {};
+            
+            // Arayüzü güncelle
+            document.getElementById('user-overlay').style.display = 'none';
+            document.getElementById('active-user-name').innerText = "👤 " + currentUser;
+            loadCSV();
+        } catch (error) {
+            console.error(error);
+            alert("Google ile giriş başarısız.");
+        }
+    }
 
-    function createUser() {
-        const name = document.getElementById('new-username').value.trim();
-        if(!name || users.includes(name)) return alert("Geçersiz isim!");
-        users.push(name);
-        localStorage.setItem('ox_users', JSON.stringify(users));
-        document.getElementById('new-username').value = "";
-        initUserSystem();
-    }
+    function createUser() {
+        const name = document.getElementById('new-username').value.trim();
+        if(!name || users.includes(name)) return alert("Geçersiz isim!");
+        users.push(name);
+        localStorage.setItem('ox_users', JSON.stringify(users));
+        document.getElementById('new-username').value = "";
+        initUserSystem();
+    }
 
-    function deleteUser(name) {
-        if(!confirm(name + " silinsin mi?")) return;
-        users = users.filter(u => u !== name);
-        localStorage.removeItem('ox_srs_' + name);
-        localStorage.setItem('ox_users', JSON.stringify(users));
-        initUserSystem();
-    }
+    function deleteUser(name) {
+        if(!confirm(name + " silinsin mi?")) return;
+        users = users.filter(u => u !== name);
+        localStorage.removeItem('ox_srs_' + name);
+        localStorage.setItem('ox_users', JSON.stringify(users));
+        initUserSystem();
+    }
 
-    function selectUser(name) {
-        currentUser = name;
-        const savedData = localStorage.getItem('ox_srs_' + name);
-        srsData = savedData ? JSON.parse(savedData) : {};
-        document.getElementById('user-overlay').style.display = 'none';
-        document.getElementById('active-user-name').innerText = "👤 " + name;
-        loadCSV();
-    }
+    function selectUser(name) {
+        currentUser = name;
+        const savedData = localStorage.getItem('ox_srs_' + name);
+        srsData = savedData ? JSON.parse(savedData) : {};
+        document.getElementById('user-overlay').style.display = 'none';
+        document.getElementById('active-user-name').innerText = "👤 " + name;
+        loadCSV();
+    }
 
-    async function loadCSV() {
-        try {
-            const res = await fetch('kelimeler.csv');
-            const data = await res.text();
-            const rows = data.split('\n').slice(1);
-            let fileWords = [];
-            rows.forEach(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
-                if(cols[0] && cols[cols.length-1]) {
-                    fileWords.push({ eng: cols[0], tr: cols[cols.length-1], level: cols.find(c => levels.includes(c.toUpperCase())) || "A1", types: [cols.find(c => types.includes(c.toLowerCase())) || "n."] });
-                }
-            });
-            masterDict = [...fileWords];
-            applyFilters();
-            updateUI();
-        } catch (e) { console.error("CSV yüklenemedi."); }
-    }
+    async function loadCSV() {
+        try {
+            const res = await fetch('kelimeler.csv');
+            const data = await res.text();
+            const rows = data.split('\n').slice(1);
+            let fileWords = [];
+            rows.forEach(row => {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
+                if(cols[0] && cols[cols.length-1]) {
+                    fileWords.push({ eng: cols[0], tr: cols[cols.length-1], level: cols.find(c => levels.includes(c.toUpperCase())) || "A1", types: [cols.find(c => types.includes(c.toLowerCase())) || "n."] });
+                }
+            });
+            masterDict = [...fileWords];
+            applyFilters();
+            updateUI();
+        } catch (e) { console.error("CSV yüklenemedi."); }
+    }
 
-    function applyFilters() {
-        const sL = document.getElementById('level-filter').value;
-        const sT = document.getElementById('type-filter').value;
-        filteredDict = masterDict.filter(i => (sL === "ALL" || i.level === sL) && (sT === "ALL" || i.types.includes(sT)));
-        getNextWord();
-    }
+    function applyFilters() {
+        const sL = document.getElementById('level-filter').value;
+        const sT = document.getElementById('type-filter').value;
+        filteredDict = masterDict.filter(i => (sL === "ALL" || i.level === sL) && (sT === "ALL" || i.types.includes(sT)));
+        getNextWord();
+    }
 
-    function getNextWord() {
-        if (!filteredDict.length) return document.getElementById('target-word').innerText = "Liste Boş";
-        secondChanceActive = false;
-        const mists = filteredDict.filter(i => srsData[i.eng]?.isMistake);
-        currentItem = (mists.length > 0 && Math.random() < 0.3) ? mists[Math.floor(Math.random() * mists.length)] : filteredDict[Math.floor(Math.random() * filteredDict.length)];
-        renderWord();
-    }
+    function getNextWord() {
+        if (!filteredDict.length) return document.getElementById('target-word').innerText = "Liste Boş";
+        secondChanceActive = false;
+        const mists = filteredDict.filter(i => srsData[i.eng]?.isMistake);
+        currentItem = (mists.length > 0 && Math.random() < 0.3) ? mists[Math.floor(Math.random() * mists.length)] : filteredDict[Math.floor(Math.random() * filteredDict.length)];
+        renderWord();
+    }
 
-    function renderWord() {
-        document.getElementById('target-word').innerText = currentItem.eng;
-        document.getElementById('tags-box').innerHTML = `<span class="tag tag-lvl">${currentItem.level}</span><span class="tag tag-info">${currentItem.types[0]}</span>`;
-        const inp = document.getElementById('user-input');
-        inp.value = ""; inp.disabled = false; inp.focus(); inp.classList.remove('shake');
-        document.getElementById('action-btn').innerText = "KONTROL ET";
-        document.getElementById('action-btn').style.background = "var(--primary)";
-        document.getElementById('action-btn').onclick = checkAnswer;
-        document.getElementById('feedback').innerText = "";
-    }
+    function renderWord() {
+        document.getElementById('target-word').innerText = currentItem.eng;
+        document.getElementById('tags-box').innerHTML = `<span class="tag tag-lvl">${currentItem.level}</span><span class="tag tag-info">${currentItem.types[0]}</span>`;
+        const inp = document.getElementById('user-input');
+        inp.value = ""; inp.disabled = false; inp.focus(); inp.classList.remove('shake');
+        document.getElementById('action-btn').innerText = "KONTROL ET";
+        document.getElementById('action-btn').style.background = "var(--primary)";
+        document.getElementById('action-btn').onclick = checkAnswer;
+        document.getElementById('feedback').innerText = "";
+    }
 
-    function checkAnswer() {
-        const vafunction checkAnswer() {
-    const val = document.getElementById('user-input').value.trim().toLowerCase();
-    const answers = currentItem.tr.toLowerCase().split(',').map(a => a.trim());
-    const fb = document.getElementById('feedback');
-    const inputField = document.getElementById('user-input');
+    function checkAnswer() {
+        const val = document.getElementById('user-input').value.trim().toLowerCase();
+        const ans = currentItem.tr.toLowerCase().split(',').map(a => a.trim());
+        const fb = document.getElementById('feedback');
+        if (ans.includes(val)) {
+            fb.innerText = "✨ HARİKA!"; fb.style.color = "var(--success)";
+            if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
+            srsData[currentItem.eng].level++; 
+            srsData[currentItem.eng].isMistake = false;
+            finalizeRound(true);
+        } else {
+            if (!secondChanceActive) {
+                fb.innerText = "🎯 Tekrar dene!"; fb.style.color = "var(--warning)";
+                document.getElementById('user-input').classList.add('shake'); secondChanceActive = true;
+                setTimeout(() => document.getElementById('user-input').classList.remove('shake'), 400);
+            } else {
+                fb.innerText = `💡 Cevap: ${currentItem.tr}`; fb.style.color = "var(--error)";
+                if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
+                srsData[currentItem.eng].isMistake = true;
+                finalizeRound(false);
+            }
+        }
+    }
 
-    // Tam eşleşme veya küçük hata kontrolü
-    let isAccepted = false;
-    let usedFuzzy = false;
+    function finalizeRound(isCorrect) {
+        // Yerel Kayıt
+        localStorage.setItem('ox_srs_' + currentUser, JSON.stringify(srsData));
+        
+        // Google ile girilmişse Bulut Kaydı
+        if (auth.currentUser) {
+            db.collection("users").doc(auth.currentUser.uid).set({
+                srsData: srsData,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
 
-    for (let ans of answers) {
-        const distance = getLevenshteinDistance(val, ans);
-        
-        if (distance === 0) {
-            isAccepted = true;
-            break;
-        } 
-        // Tolerans: 4 harften uzun kelimeler için 1 harf hatasına izin ver
-        else if (ans.length > 3 && distance === 1) {
-            isAccepted = true;
-            usedFuzzy = true;
-            break;
-        }
-    }
+     updateUI();
+    
+    const actionBtn = document.getElementById('action-btn');
+    const userInput = document.getElementById('user-input');
 
-    if (isAccepted) {
-        fb.innerText = usedFuzzy ? `✨ Yakın tahmin! Cevap: ${currentItem.tr}` : "✨ HARİKA!";
-        fb.style.color = "var(--success)";
-        
-        if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
-        srsData[currentItem.eng].level++; 
-        srsData[currentItem.eng].isMistake = false;
-        finalizeRound(true);
-    } else {
-        // ... (Mevcut hata mantığı: secondChanceActive kontrolü)
-        if (!secondChanceActive) {
-            fb.innerText = "🎯 Tekrar dene!";
-            fb.style.color = "var(--warning)";
-            inputField.classList.add('shake');
-            secondChanceActive = true;
-            setTimeout(() => inputField.classList.remove('shake'), 400);
-        } else {
-            fb.innerText = `💡 Cevap: ${currentItem.tr}`;
-            fb.style.color = "var(--error)";
-            if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
-            srsData[currentItem.eng].isMistake = true;
-            finalizeRound(false);
-        }
-    }
-}
-    function finalizeRound(isCorrect) {
-        // Yerel Kayıt
-        localStorage.setItem('ox_srs_' + currentUser, JSON.stringify(srsData));
-        
-        // Google ile girilmişse Bulut Kaydı
-        if (auth.currentUser) {
-            db.collection("users").doc(auth.currentUser.uid).set({
-                srsData: srsData,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-        }
+    userInput.disabled = true;
+    actionBtn.innerText = "SIRADAKİ";
+    actionBtn.style.background = isCorrect ? "var(--success)" : "var(--error)";
+    actionBtn.onclick = getNextWord;
 
-     updateUI();
-    
-    const actionBtn = document.getElementById('action-btn');
-    const userInput = document.getElementById('user-input');
+    // --- OTOMATİK GEÇİŞ MANTIĞI ---
+    // Eğer doğruysa 1 saniye bekle, yanlışsa cevabı görmesi için 3 saniye bekle
+    const delay = isCorrect ? 1000 : 3000;
 
-    userInput.disabled = true;
-    actionBtn.innerText = "SIRADAKİ";
-    actionBtn.style.background = isCorrect ? "var(--success)" : "var(--error)";
-    actionBtn.onclick = getNextWord;
+    // Mevcut bir otomatik geçişi iptal etmek için (üst üste binmemesi için)
+    if (window.autoNextTimeout) clearTimeout(window.autoNextTimeout);
 
-    // --- OTOMATİK GEÇİŞ MANTIĞI ---
-    // Eğer doğruysa 1 saniye bekle, yanlışsa cevabı görmesi için 3 saniye bekle
-    const delay = isCorrect ? 1000 : 3000;
-
-    // Mevcut bir otomatik geçişi iptal etmek için (üst üste binmemesi için)
-    if (window.autoNextTimeout) clearTimeout(window.autoNextTimeout);
-
-    window.autoNextTimeout = setTimeout(() => {
-        // Eğer kullanıcı zaten manuel olarak 'Sıradaki'ne basmadıysa geç
-        if (userInput.disabled) { 
-            getNextWord();
-        }
-    }, delay);
+    window.autoNextTimeout = setTimeout(() => {
+        // Eğer kullanıcı zaten manuel olarak 'Sıradaki'ne basmadıysa geç
+        if (userInput.disabled) { 
+            getNextWord();
+        }
+    }, delay);
 }
 
-    function updateUI() {
-        const mCount = Object.values(srsData).filter(v => v.isMistake).length;
-        document.getElementById('wrong-count').innerText = mCount;
-        const mList = masterDict.filter(i => srsData[i.eng]?.isMistake);
-        document.getElementById('mistake-list-container').innerHTML = mList.map(m => `<div style="padding:15px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between"><b>${m.eng}</b> <span style="color:#64748b">${m.tr}</span></div>`).join('');
-    }
+    function updateUI() {
+        const mCount = Object.values(srsData).filter(v => v.isMistake).length;
+        document.getElementById('wrong-count').innerText = mCount;
+        const mList = masterDict.filter(i => srsData[i.eng]?.isMistake);
+        document.getElementById('mistake-list-container').innerHTML = mList.map(m => `<div style="padding:15px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between"><b>${m.eng}</b> <span style="color:#64748b">${m.tr}</span></div>`).join('');
+    }
 
-    function openStats() {
-        toggleModal('stats-modal', true);
-        const data = Object.values(srsData);
-        const stats = { new: masterDict.length - data.length, learn: data.filter(v => v.level > 0 && v.level < 4 && !v.isMistake).length, exp: data.filter(v => v.level >= 4).length, mist: data.filter(v => v.isMistake).length };
-        const ctx = document.getElementById('statsChart').getContext('2d');
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Yeni', 'Öğreniliyor', 'Uzman', 'Hatalı'], datasets: [{ data: [stats.new, stats.learn, stats.exp, stats.mist], backgroundColor: ['#e2e8f0','#4f46e5','#10b981','#ef4444'], borderWeight:0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%', borderRadius: 10 } });
-        let h = "";
-        levels.forEach(l => {
-            const total = masterDict.filter(i => i.level === l).length;
-            const lr = masterDict.filter(i => i.level === l && srsData[i.eng]?.level > 0).length;
-            const ex = masterDict.filter(i => i.level === l && srsData[i.eng]?.level >= 4).length;
-            const pL = total > 0 ? Math.round((lr/total)*100) : 0;
-            const pE = total > 0 ? Math.round((ex/total)*100) : 0;
-            h += `<div class="progress-row"><div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:800; margin-bottom:5px"><span>${l} Seviyesi</span><span>${lr}/${total}</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pL}%"></div></div><div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--expert); font-weight:800;"><span>Uzmanlık Derecesi</span><span>%${pE}</span></div><div class="progress-bar" style="height:6px"><div class="expert-fill" style="width:${pE}%"></div></div></div>`;
-        });
-        document.getElementById('level-bars').innerHTML = h;
-    }
+    function openStats() {
+        toggleModal('stats-modal', true);
+        const data = Object.values(srsData);
+        const stats = { new: masterDict.length - data.length, learn: data.filter(v => v.level > 0 && v.level < 4 && !v.isMistake).length, exp: data.filter(v => v.level >= 4).length, mist: data.filter(v => v.isMistake).length };
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Yeni', 'Öğreniliyor', 'Uzman', 'Hatalı'], datasets: [{ data: [stats.new, stats.learn, stats.exp, stats.mist], backgroundColor: ['#e2e8f0','#4f46e5','#10b981','#ef4444'], borderWeight:0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%', borderRadius: 10 } });
+        let h = "";
+        levels.forEach(l => {
+            const total = masterDict.filter(i => i.level === l).length;
+            const lr = masterDict.filter(i => i.level === l && srsData[i.eng]?.level > 0).length;
+            const ex = masterDict.filter(i => i.level === l && srsData[i.eng]?.level >= 4).length;
+            const pL = total > 0 ? Math.round((lr/total)*100) : 0;
+            const pE = total > 0 ? Math.round((ex/total)*100) : 0;
+            h += `<div class="progress-row"><div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:800; margin-bottom:5px"><span>${l} Seviyesi</span><span>${lr}/${total}</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pL}%"></div></div><div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--expert); font-weight:800;"><span>Uzmanlık Derecesi</span><span>%${pE}</span></div><div class="progress-bar" style="height:6px"><div class="expert-fill" style="width:${pE}%"></div></div></div>`;
+        });
+        document.getElementById('level-bars').innerHTML = h;
+    }
 
-    function speakWord() { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(currentItem.eng); u.lang = 'en-US'; u.rate = 0.85; window.speechSynthesis.speak(u); }
-    function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
-    document.getElementById('user-input').addEventListener("keypress", (e) => { if(e.key === "Enter") document.getElementById('action-btn').click(); });
-    window.onload = initUserSystem;
+    function speakWord() { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(currentItem.eng); u.lang = 'en-US'; u.rate = 0.85; window.speechSynthesis.speak(u); }
+    function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+    document.getElementById('user-input').addEventListener("keypress", (e) => { if(e.key === "Enter") document.getElementById('action-btn').click(); });
+    window.onload = initUserSystem;
 const settingsHTML = `
 <div id="settings-modal" class="modal">
-    <div class="modal-content">
-        <h2 style="font-weight:800; margin-bottom:20px">Ayarlar</h2>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
-            <span style="font-weight:600">Otomatik Ses (İngilizce)</span>
-            <label class="switch">
-                <input type="checkbox" id="auto-speak-toggle" onchange="toggleAutoSpeak(this.checked)">
-                <span class="slider"></span>
-            </label>
-        </div>
-        <button onclick="toggleModal('settings-modal', false)" style="width:100%; padding:15px; border-radius:16px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer">KAYDET VE KAPAT</button>
-    </div>
+    <div class="modal-content">
+        <h2 style="font-weight:800; margin-bottom:20px">Ayarlar</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
+            <span style="font-weight:600">Otomatik Ses (İngilizce)</span>
+            <label class="switch">
+                <input type="checkbox" id="auto-speak-toggle" onchange="toggleAutoSpeak(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <button onclick="toggleModal('settings-modal', false)" style="width:100%; padding:15px; border-radius:16px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer">KAYDET VE KAPAT</button>
+    </div>
 </div>
 
 <style>
@@ -418,49 +391,49 @@ let autoSpeakEnabled = localStorage.getItem('ox_auto_speak') === 'true';
 document.getElementById('auto-speak-toggle').checked = autoSpeakEnabled;
 
 function toggleAutoSpeak(isEnabled) {
-    autoSpeakEnabled = isEnabled;
-    localStorage.setItem('ox_auto_speak', isEnabled);
+    autoSpeakEnabled = isEnabled;
+    localStorage.setItem('ox_auto_speak', isEnabled);
 }
 const originalRenderWord = renderWord;
 renderWord = function() {
-    originalRenderWord(); // Eski renderWord fonksiyonunu çalıştır
-    if (autoSpeakEnabled && currentItem) {
-        setTimeout(() => speakWord(), 300);
-    }
+    originalRenderWord(); // Eski renderWord fonksiyonunu çalıştır
+    if (autoSpeakEnabled && currentItem) {
+        setTimeout(() => speakWord(), 300);
+    }
 };
 window.speakWord = function() {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentItem.eng);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9; // Daha doğal bir hız
-    utterance.pitch = 1; 
-    window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentItem.eng);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9; // Daha doğal bir hız
+    utterance.pitch = 1; 
+    window.speechSynthesis.speak(utterance);
 };
 const settingsContainer = document.querySelector('#settings-modal .modal-content');
 const darkModeHTML = `
 <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f8fafc; border-radius:18px; margin-bottom:20px">
-    <span style="font-weight:600">Karanlık Mod (Dark Mode)</span>
-    <label class="switch">
-        <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode(this.checked)">
-        <span class="slider"></span>
-    </label>
+    <span style="font-weight:600">Karanlık Mod (Dark Mode)</span>
+    <label class="switch">
+        <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode(this.checked)">
+        <span class="slider"></span>
+    </label>
 </div>
 `;
 settingsContainer.querySelector('button').insertAdjacentHTML('beforebegin', darkModeHTML);
 const darkStyles = `
 <style id="dark-mode-styles">
-    body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
-    body.dark-mode .container { background: var(--card); border-color: #334155; }
-    body.dark-mode input { background: #334155; border-color: #475569; color: white; }
-    body.dark-mode select { background: #334155; color: #cbd5e1; }
-    body.dark-mode .menu-bar { background: #334155; border-color: #475569; }
-    body.dark-mode .active-user { background: #1e293b; color: var(--primary-light); }
-    body.dark-mode #target-word { color: white; }
-    body.dark-mode #user-overlay { background: rgba(15, 23, 42, 0.95); }
-    body.dark-mode .user-card, body.dark-mode .modal-content { background: #1e293b; color: white; border-color: #334155; }
-    body.dark-mode .progress-row { background: #334155; border-color: #475569; }
-    body.dark-mode .tag-lvl { background: #312e81; color: #c7d2fe; }
-    body.dark-mode #settings-modal div[style*="background:#f8fafc"] { background: #334155 !important; }
+    body.dark-mode { --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
+    body.dark-mode .container { background: var(--card); border-color: #334155; }
+    body.dark-mode input { background: #334155; border-color: #475569; color: white; }
+    body.dark-mode select { background: #334155; color: #cbd5e1; }
+    body.dark-mode .menu-bar { background: #334155; border-color: #475569; }
+    body.dark-mode .active-user { background: #1e293b; color: var(--primary-light); }
+    body.dark-mode #target-word { color: white; }
+    body.dark-mode #user-overlay { background: rgba(15, 23, 42, 0.95); }
+    body.dark-mode .user-card, body.dark-mode .modal-content { background: #1e293b; color: white; border-color: #334155; }
+    body.dark-mode .progress-row { background: #334155; border-color: #475569; }
+    body.dark-mode .tag-lvl { background: #312e81; color: #c7d2fe; }
+    body.dark-mode #settings-modal div[style*="background:#f8fafc"] { background: #334155 !important; }
 </style>
 `;
 document.head.insertAdjacentHTML('beforeend', darkStyles);
@@ -468,95 +441,95 @@ let darkModeEnabled = localStorage.getItem('ox_dark_mode') === 'true';
 document.getElementById('dark-mode-toggle').checked = darkModeEnabled;
 
 function applyDarkMode(isDark) {
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
 }
 
 function toggleDarkMode(isEnabled) {
-    darkModeEnabled = isEnabled;
-    localStorage.setItem('ox_dark_mode', isEnabled);
-    applyDarkMode(isEnabled);
+    darkModeEnabled = isEnabled;
+    localStorage.setItem('ox_dark_mode', isEnabled);
+    applyDarkMode(isEnabled);
 }
 applyDarkMode(darkModeEnabled);
 const originalGetNextWord = getNextWord;
 getNextWord = function() {
-    if (!filteredDict.length) return originalGetNextWord();
+    if (!filteredDict.length) return originalGetNextWord();
 
-    const now = Date.now();
-    let dueWords = filteredDict.filter(item => {
-        const data = srsData[item.eng];
-        if (!data) return true; // Hiç görülmemiş kelime
-        if (data.isMistake) return true; // Hatalı kelime
-        
-        // Bir sonraki görülme zamanı gelmiş mi? (Default: 0)
-        return !data.nextReview || now >= data.nextReview;
-    });
-    if (dueWords.length === 0) {
-        dueWords = filteredDict;
-    }
+    const now = Date.now();
+    let dueWords = filteredDict.filter(item => {
+        const data = srsData[item.eng];
+        if (!data) return true; // Hiç görülmemiş kelime
+        if (data.isMistake) return true; // Hatalı kelime
+        
+        // Bir sonraki görülme zamanı gelmiş mi? (Default: 0)
+        return !data.nextReview || now >= data.nextReview;
+    });
+    if (dueWords.length === 0) {
+        dueWords = filteredDict;
+    }
 
-    // %20 ihtimalle hatalı kelimelere öncelik ver
-    const mistakes = dueWords.filter(i => srsData[i.eng]?.isMistake);
-    if (mistakes.length > 0 && Math.random() < 0.2) {
-        currentItem = mistakes[Math.floor(Math.random() * mistakes.length)];
-    } else {
-        currentItem = dueWords[Math.floor(Math.random() * dueWords.length)];
-    }
+    // %20 ihtimalle hatalı kelimelere öncelik ver
+    const mistakes = dueWords.filter(i => srsData[i.eng]?.isMistake);
+    if (mistakes.length > 0 && Math.random() < 0.2) {
+        currentItem = mistakes[Math.floor(Math.random() * mistakes.length)];
+    } else {
+        currentItem = dueWords[Math.floor(Math.random() * dueWords.length)];
+    }
 
-    secondChanceActive = false;
-    renderWord();
+    secondChanceActive = false;
+    renderWord();
 };
 const originalFinalizeRound = finalizeRound;
 finalizeRound = function(isCorrect) {
-    if (!srsData[currentItem.eng]) {
-        srsData[currentItem.eng] = { level: 0, isMistake: false, nextReview: 0 };
-    }
+    if (!srsData[currentItem.eng]) {
+        srsData[currentItem.eng] = { level: 0, isMistake: false, nextReview: 0 };
+    }
 
-    const data = srsData[currentItem.eng];
-    const now = Date.now();
+    const data = srsData[currentItem.eng];
+    const now = Date.now();
 
-    if (isCorrect) {
-        data.level++;
-        // Seviyeye göre bekleme süresi (Dakika bazlı örnek: 2^level * 10 dk)
-        // Profesyonel SRS: Seviye 1: 10dk, Seviye 2: 1 saat, Seviye 3: 5 saat, Seviye 4: 1 gün...
-        const intervals = [0, 10, 60, 300, 1440, 4320, 10080]; // Dakika cinsinden
-        const waitMinutes = intervals[Math.min(data.level, intervals.length - 1)];
-        data.nextReview = now + (waitMinutes * 60000);
-    } else {
-        data.level = 0; // Yanlışta başa dön
-        data.nextReview = now; // Hemen tekrar sorulabilir
-    }
+    if (isCorrect) {
+        data.level++;
+        // Seviyeye göre bekleme süresi (Dakika bazlı örnek: 2^level * 10 dk)
+        // Profesyonel SRS: Seviye 1: 10dk, Seviye 2: 1 saat, Seviye 3: 5 saat, Seviye 4: 1 gün...
+        const intervals = [0, 10, 60, 300, 1440, 4320, 10080]; // Dakika cinsinden
+        const waitMinutes = intervals[Math.min(data.level, intervals.length - 1)];
+        data.nextReview = now + (waitMinutes * 60000);
+    } else {
+        data.level = 0; // Yanlışta başa dön
+        data.nextReview = now; // Hemen tekrar sorulabilir
+    }
 
-    originalFinalizeRound(isCorrect);
+    originalFinalizeRound(isCorrect);
 };
 
 console.log("🚀 SRS Algoritması Aktif: Kelimeler artık öğrenme hızınıza göre gelecek.");
 
 const statusRenderWord = renderWord;
 renderWord = function() {
-    statusRenderWord(); // Orijinal render fonksiyonunu çağır
-    
-    // Bilgi kutusunu oluştur veya güncelle
-    let statusBox = document.getElementById('srs-status');
-    if (!statusBox) {
-        statusBox = document.createElement('div');
-        statusBox.id = 'srs-status';
-        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -5px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
-        document.getElementById('tags-box').after(statusBox);
-    }
+    statusRenderWord(); // Orijinal render fonksiyonunu çağır
+    
+    // Bilgi kutusunu oluştur veya güncelle
+    let statusBox = document.getElementById('srs-status');
+    if (!statusBox) {
+        statusBox = document.createElement('div');
+        statusBox.id = 'srs-status';
+        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -5px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
+        document.getElementById('tags-box').after(statusBox);
+    }
 
-    const data = srsData[currentItem.eng];
-    if (data && data.level > 0) {
-        const levelStars = "⭐".repeat(Math.min(data.level, 5));
-        statusBox.innerText = `Öğrenme Seviyesi: ${levelStars}`;
-    } else {
-        statusBox.innerText = "YENİ KELİME ✨";
-    }
+    const data = srsData[currentItem.eng];
+    if (data && data.level > 0) {
+        const levelStars = "⭐".repeat(Math.min(data.level, 5));
+        statusBox.innerText = `Öğrenme Seviyesi: ${levelStars}`;
+    } else {
+        statusBox.innerText = "YENİ KELİME ✨";
+    }
 };
-   // --- MOBİL KLAVYE VE GÖRÜNÜM OPTİMİZASYONU (GİZLEME KAPALI) ---
+   // --- MOBİL KLAVYE VE GÖRÜNÜM OPTİMİZASYONU (GİZLEME KAPALI) ---
 
 const inputGroup = document.querySelector('.input-group');
 const userInput = document.getElementById('user-input');
@@ -567,62 +540,62 @@ let hasInteracted = false;
 document.addEventListener('touchstart', () => { hasInteracted = true; }, { once: true });
 
 const wrapFocus = () => {
-    if (hasInteracted) {
-        setTimeout(() => { userInput.focus(); }, 100);
-    }
+    if (hasInteracted) {
+        setTimeout(() => { userInput.focus(); }, 100);
+    }
 };
 
 // 2. Dinamik Klavye Takibi (Visual Viewport)
 if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-        const viewport = window.visualViewport;
-        const offset = window.innerHeight - viewport.height;
+    window.visualViewport.addEventListener('resize', () => {
+        const viewport = window.visualViewport;
+        const offset = window.innerHeight - viewport.height;
 
-        if (offset > 150) { // Klavye açıldı
-            document.body.classList.add('keyboard-active');
-            
-            // Buton grubunu klavyenin üzerine taşı (Elemanları gizlemeden)
-            inputGroup.style.position = 'fixed';
-            inputGroup.style.bottom = `${offset + 5}px`;
-            inputGroup.style.left = '24px';
-            inputGroup.style.right = '24px';
-            inputGroup.style.zIndex = '1000';
-            
-            // Alan açmak için sadece ana kelimeyi biraz küçült
-            targetWordDiv.style.fontSize = '2.4rem';
-        } else { // Klavye kapandı
-            document.body.classList.remove('keyboard-active');
-            
-            // Eski haline döndür
-            inputGroup.style.position = 'relative';
-            inputGroup.style.bottom = '0';
-            inputGroup.style.left = '0';
-            inputGroup.style.right = '0';
-            
-            targetWordDiv.style.fontSize = '3.2rem';
-        }
-    });
+        if (offset > 150) { // Klavye açıldı
+            document.body.classList.add('keyboard-active');
+            
+            // Buton grubunu klavyenin üzerine taşı (Elemanları gizlemeden)
+            inputGroup.style.position = 'fixed';
+            inputGroup.style.bottom = `${offset + 5}px`;
+            inputGroup.style.left = '24px';
+            inputGroup.style.right = '24px';
+            inputGroup.style.zIndex = '1000';
+            
+            // Alan açmak için sadece ana kelimeyi biraz küçült
+            targetWordDiv.style.fontSize = '2.4rem';
+        } else { // Klavye kapandı
+            document.body.classList.remove('keyboard-active');
+            
+            // Eski haline döndür
+            inputGroup.style.position = 'relative';
+            inputGroup.style.bottom = '0';
+            inputGroup.style.left = '0';
+            inputGroup.style.right = '0';
+            
+            targetWordDiv.style.fontSize = '3.2rem';
+        }
+    });
 }
 
 // Mevcut renderWord fonksiyonuna focus tetikleyiciyi ekle
 const oldRender = renderWord;
 renderWord = function() {
-    oldRender();
-    wrapFocus();
+    oldRender();
+    wrapFocus();
 };
 
 // CSS Düzenlemeleri (Gizleme kuralları kaldırıldı)
 const mobileStyle = document.createElement('style');
 mobileStyle.innerHTML = `
-    .keyboard-active .container {
-        padding-bottom: 120px !important; /* Butonun altında kalan alan için boşluk */
-    }
-    #user-input:focus {
-        font-size: 16px !important; /* iOS zoom koruması */
-    }
+    .keyboard-active .container {
+        padding-bottom: 120px !important; /* Butonun altında kalan alan için boşluk */
+    }
+    #user-input:focus {
+        font-size: 16px !important; /* iOS zoom koruması */
+    }
 `;
 document.head.appendChild(mobileStyle);
-
+    
 </script>
 </body>
 </html>
