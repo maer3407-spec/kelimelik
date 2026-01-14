@@ -265,29 +265,56 @@
     }
 
     function checkAnswer() {
-        const val = document.getElementById('user-input').value.trim().toLowerCase();
-        const ans = currentItem.tr.toLowerCase().split(',').map(a => a.trim());
-        const fb = document.getElementById('feedback');
-        if (ans.includes(val)) {
-            fb.innerText = "✨ HARİKA!"; fb.style.color = "var(--success)";
-            if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
-            srsData[currentItem.eng].level++; 
-            srsData[currentItem.eng].isMistake = false;
-            finalizeRound(true);
-        } else {
-            if (!secondChanceActive) {
-                fb.innerText = "🎯 Tekrar dene!"; fb.style.color = "var(--warning)";
-                document.getElementById('user-input').classList.add('shake'); secondChanceActive = true;
-                setTimeout(() => document.getElementById('user-input').classList.remove('shake'), 400);
-            } else {
-                fb.innerText = `💡 Cevap: ${currentItem.tr}`; fb.style.color = "var(--error)";
-                if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
-                srsData[currentItem.eng].isMistake = true;
-                finalizeRound(false);
-            }
+        const vafunction checkAnswer() {
+    const val = document.getElementById('user-input').value.trim().toLowerCase();
+    const answers = currentItem.tr.toLowerCase().split(',').map(a => a.trim());
+    const fb = document.getElementById('feedback');
+    const inputField = document.getElementById('user-input');
+
+    // Tam eşleşme veya küçük hata kontrolü
+    let isAccepted = false;
+    let usedFuzzy = false;
+
+    for (let ans of answers) {
+        const distance = getLevenshteinDistance(val, ans);
+        
+        if (distance === 0) {
+            isAccepted = true;
+            break;
+        } 
+        // Tolerans: 4 harften uzun kelimeler için 1 harf hatasına izin ver
+        else if (ans.length > 3 && distance === 1) {
+            isAccepted = true;
+            usedFuzzy = true;
+            break;
         }
     }
 
+    if (isAccepted) {
+        fb.innerText = usedFuzzy ? `✨ Yakın tahmin! Cevap: ${currentItem.tr}` : "✨ HARİKA!";
+        fb.style.color = "var(--success)";
+        
+        if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
+        srsData[currentItem.eng].level++; 
+        srsData[currentItem.eng].isMistake = false;
+        finalizeRound(true);
+    } else {
+        // ... (Mevcut hata mantığı: secondChanceActive kontrolü)
+        if (!secondChanceActive) {
+            fb.innerText = "🎯 Tekrar dene!";
+            fb.style.color = "var(--warning)";
+            inputField.classList.add('shake');
+            secondChanceActive = true;
+            setTimeout(() => inputField.classList.remove('shake'), 400);
+        } else {
+            fb.innerText = `💡 Cevap: ${currentItem.tr}`;
+            fb.style.color = "var(--error)";
+            if (!srsData[currentItem.eng]) srsData[currentItem.eng] = { level: 0, isMistake: false };
+            srsData[currentItem.eng].isMistake = true;
+            finalizeRound(false);
+        }
+    }
+}
     function finalizeRound(isCorrect) {
         // Yerel Kayıt
         localStorage.setItem('ox_srs_' + currentUser, JSON.stringify(srsData));
@@ -595,7 +622,30 @@ mobileStyle.innerHTML = `
     }
 `;
 document.head.appendChild(mobileStyle);
-    
+
+        function getLevenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // Değiştirme
+                    matrix[i][j - 1] + 1,     // Ekleme
+                    matrix[i - 1][j] + 1      // Silme
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
 </script>
 </body>
 </html>
