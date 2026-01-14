@@ -30,50 +30,12 @@
         .google-btn { background: white; color: var(--text); border: 1px solid #e2e8f0; padding: 15px; border-radius: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 320px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s; }
         .google-btn:hover { background: #f8fafc; transform: translateY(-1px); }
 
-        //* Modern Menu Bar - Mobil Uyumlulaştırılmış */
-.menu-bar { 
-    display: flex; 
-    justify-content: space-around; /* Elemanları eşit dağıtır */
-    align-items: center; 
-    margin-bottom: 16px; /* Boşluğu biraz azalttık */
-    background: #f8fafc; 
-    border-radius: 16px; 
-    padding: 4px; /* İç boşluğu daralttık */
-    border: 1px solid #f1f5f9;
-    flex-wrap: nowrap; /* Satır atlamasını engeller */
-    overflow-x: auto; /* Çok dar ekranlarda bar içinde kaydırma sağlar */
-    -webkit-overflow-scrolling: touch;
-}
+       /* Modern Menu Bar */
 
-.menu-item { 
-    font-size: 0.65rem; /* Yazıyı biraz daha küçülttük */
-    font-weight: 800; 
-    cursor: pointer; 
-    color: #64748b; 
-    padding: 8px 10px; /* Tıklama alanını koruyup yatay boşluğu daralttık */
-    border-radius: 12px; 
-    transition: all 0.2s; 
-    display: flex; 
-    flex-direction: column; /* İkon ve yazıyı alt alta getirerek genişlikten tasarruf eder */
-    align-items: center; 
-    gap: 2px;
-    white-space: nowrap; /* Yazıların alt satıra geçmesini engeller */
-    flex: 1; /* Her elemanın eşit alan kaplamasını sağlar */
-    text-align: center;
-}
-
-/* Aktif kullanıcı vurgusu */
-.active-user { 
-    color: var(--primary); 
-    background: white; 
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
-}
-
-/* Mobilde ikonları belirginleştirmek için opsiyonel: */
-.menu-item span {
-    font-size: 0.9rem; /* Emoji/İkon boyutunu biraz büyütür */
-}
-
+        .menu-bar { display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; background: #f8fafc; border-radius: 20px; padding: 8px; border: 1px solid #f1f5f9; flex-wrap: nowrap; }
+        .menu-item { font-size: 0.6rem; font-weight: 800; cursor: pointer; color: #64748b; padding: 10px 14px; border-radius: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+        .active-user { color: var(--primary); background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
         /* Filter Panel Responsive */
         .filter-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
         select { appearance: none; background: #f1f5f9; border: 2px solid transparent; padding: 12px; border-radius: 16px; font-weight: 600; font-size: 0.85rem; color: #475569; outline: none; cursor: pointer; transition: border 0.2s; }
