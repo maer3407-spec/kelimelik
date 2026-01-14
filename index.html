@@ -41,7 +41,7 @@
         select:focus { border-color: var(--primary-light); background: white; }
 
         /* Word Presentation Area */
-        #target-word { font-size: 3.2rem; font-weight: 800; margin: 20px 0; color: #1e293b; letter-spacing: -1.5px; line-height: 1.1; min-height: 100px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
+        #target-word { font-size: 3.2rem; font-weight: 800; margin: 0px 0 10px 0; color: #1e293b; letter-spacing: -1.5px; line-height: 1.1; min-height: 80px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .tags-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
@@ -97,7 +97,7 @@
 <div class="container">
     <div class="menu-bar">
         <div id="active-user-name" class="menu-item active-user" onclick="location.reload()">👤 Profil</div>
-        <div class="menu-item" onclick="toggleModal('mistake-modal', true)">⚠️HATALAR <span id="wrong-count" style="margin-left:4px">0</span></div>
+        <div class="menu-item" onclick="toggleModal('mistake-modal', true)">⚠️ HATALAR <span id="wrong-count" style="margin-left:4px">0</span></div>
         <div class="menu-item" onclick="openStats()">📊 KELİMETİSTİK</div>
     </div>
 
@@ -516,7 +516,7 @@ renderWord = function() {
     if (!statusBox) {
         statusBox = document.createElement('div');
         statusBox.id = 'srs-status';
-        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -11px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
+        statusBox.style = "font-size: 0.65rem; font-weight: 800; color: var(--primary-light); margin-top: -5px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px;";
         document.getElementById('tags-box').after(statusBox);
     }
 
@@ -594,6 +594,7 @@ mobileStyle.innerHTML = `
     }
 `;
 document.head.appendChild(mobileStyle);
+    
 </script>
 </body>
 </html>
